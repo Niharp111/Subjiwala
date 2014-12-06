@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html ng-app="">
+<head>
+<meta charset="ISO-8859-1">
+<title>Welcome Page</title>
+<script
+	src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.26/angular.min.js"></script>
+<style type="text/css">
+.Table {
+	display: table;
+}
+
+.Main {
+	text-align: center;
+	padding-left: 50px;
+	padding-right: 15px;
+	padding-left: 50px;
+}
+
+.Title {
+	display: table-caption;
+	text-align: center;
+	font-weight: bold;
+	font-size: larger;
+}
+
+.Heading {
+	display: table-row;
+	font-weight: bold;
+	text-align: center;
+}
+
+.Row {
+	display: table-row;
+}
+
+.Cell {
+	display: table-Cell;
+	border: solid;
+	border-width: thin;
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
+.Cart {
+	float: Right;
+	padding-left: 5px;
+	padding-right: 15px;
+}
+</style>
+
+<script>
+	function vegetableDetailsController($scope) {
+		$scope.vegetables = [ {
+			id : 1,
+			name : "Cauliflower",
+			price : "10",
+			unit : "kg"
+		}, {
+			id : 2,
+			name : "Cauliflower2",
+			price : "10",
+			unit : "kg"
+		}, {
+			id : 3,
+			name : "Cauliflower3",
+			price : "10",
+			unit : "kg"
+		} ];
+		$scope.carts = [];
+
+		$scope.quantity = [ 1, 2, 3, 4, 5 ];
+		$scope.addtoCart = function(vegetable, quantity) {
+			var matches = false;
+			for (var i = 0; i < $scope.carts.length; i++) {
+				console.log("Cart Item" + ($scope.carts[i]).item.id);
+				console.log("vegetable ID" + vegetable.id);
+				if (($scope.carts[i]).item.id === vegetable.id) {
+					matches = true;
+				}
+			}
+			if (!matches) {
+				$scope.carts.push({
+					"item" : vegetable,
+					"quantity" : quantity,
+					"totalPrice" : vegetable.price * quantity
+				})
+				$scope.changeQuantity($scope.carts[$scope.carts.length - 1],
+						quantity);
+			}
+		}
+		$scope.removeFromCart = function(vegetableId) {
+			for (var i = 0; i < $scope.carts.length; i++) {
+				if (($scope.carts[i]).item.id === vegetableId) {
+					$scope.carts.splice(i, 1);
+					console.log(JSON.stringify($scope.carts));
+				}
+			}
+		 $scope.calculateTotalPrice();
+		}
+		$scope.vegetablePrice = 0;
+		$scope.calculateVegetablePrice = function(vegetable, orderProp) {
+
+			for (var i = 0; i < $scope.carts.length; i++) {
+				if (($scope.carts[i]).item.id === vegetable.item.id) {
+					$scope.vegetablePrice = vegetable.item.price * orderProp;
+
+				}
+			}
+
+		}
+		$scope.totalCartPrice = 0;
+		$scope.calculateTotalPrice = function() {
+			$scope.totalCartPrice = 0;
+			for (var i = 0; i < $scope.carts.length; i++) {
+				$scope.totalCartPrice = $scope.totalCartPrice
+						+ (($scope.carts[i]).item.price * $scope.carts[i].quantity);
+
+			}
+		}
+		$scope.vegetablePrice = [ {
+
+		} ]
+		$scope.changeQuantity = function(vegetable, orderProp) {
+			for (var i = 0; i < $scope.carts.length; i++) {
+				if (($scope.carts[i]).item.id === vegetable.item.id) {
+					($scope.carts[i]).quantity = orderProp;
+					($scope.carts[i]).totalPrice = vegetable.item.price
+							* orderProp;
+
+				}
+			}
+			$scope.calculateTotalPrice();
+		}
+	}
+</script>
+</head>
+<body ng-controller="vegetableDetailsController" class="Main">
+	<div>
+		<div class="Title" align="center">
+			<p>Vegetables</p>
+		</div>
+		<div class="Cart">
+			<p>Cart</p>
+			<div class="Heading">
+				<div class="Cell" align="center">
+					<p align="center">Vegetables</p>
+				</div>
+				<div class="Cell">
+					<p>Quantity</p>
+				</div>
+				<div class="Cell">
+					<p>Price</p>
+				</div>
+			</div>
+			<div class="Row" ng-repeat="vegetable in carts">
+				<div class="Cell">
+					<p>{{vegetable.item.name}}</p>
+				</div>
+				<div class="Cell">
+					<p>
+						<select ng-init="orderProp = vegetable.quantity"
+							ng-model="orderProp" ng-options="o as o for o in quantity"
+							ng-click="changeQuantity(vegetable,orderProp)">
+							<option value=""></option>
+
+						</select> <Label> {{vegetable.item.unit}} </Label>
+					<p>
+				</div>
+				<div class="Cell">
+					<p>
+						<Label title="Price"></Label>{{vegetable.totalPrice}}
+					</p>
+				</div>
+				<div class="Cell">
+					<p>
+						<button ng-click=removeFromCart(vegetable.item.id)>
+							X </Label>
+					</p>
+				</div>
+			</div>
+			<div class=Row>
+				<div></div>
+				<div class="Cell">
+					<p>
+						<Label title="Total Price">Total Price</Label>
+					</p>
+				</div>
+				<div class="Cell">
+					<p>{{totalCartPrice}}</p>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="Heading">
+		<div class="Cell">
+			<p>Vegetables</p>
+		</div>
+		<div class="Cell">
+			<p>Price/unit</p>
+		</div>
+		<div class="Cell">
+			<p></p>
+		</div>
+	</div>
+	<div class="Row" ng-repeat="vegetable in vegetables">
+		<div class="Cell">
+			<p>{{vegetable.name}}</p>
+		</div>
+		<div class="Cell">
+			<p>{{"Rs. "+vegetable.price +" / "+vegetable.unit}}</p>
+		</div>
+		<div class="Cell">
+			<button value="Add To Cart" ng-click="addtoCart(vegetable,1)">Add
+				to Cart</button>
+		</div>
+	</div>
+
+</body>
+</html>
